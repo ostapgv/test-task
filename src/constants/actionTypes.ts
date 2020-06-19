@@ -1,0 +1,3 @@
+export const SUBMIT_FORM = 'SUBMIT_FORM';
+export const VALIDATE_FIELD = 'VALIDATE_FIELD';
+export const VALIDATE_FORM = 'VALIDATE_FORM';

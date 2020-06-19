@@ -1,16 +1,25 @@
-import * as React from "react";
+import * as React from 'react';
 
-import PageInterface from "../PageInterface";
+import Form from 'components/Form/Form';
+import Header from 'components/Header/Header';
+import { formFields } from '../constants/formFields';
 
-const App: React.FC<PageInterface> = ({ color }) => {
+const App: React.FC = () => {
+  const [formFieldsState, setFormFieldsState] = React.useState(formFields);
+
+  const setFieldValue = React.useCallback((name: string, value: string) => {
+    setFormFieldsState({
+      ...formFieldsState,
+      [name]: { ...formFieldsState[name], value },
+    });
+  }, []);
+
   return (
-    <div>
-      <h1>Welcome</h1>
-      <p>
-        The color of this page is:
-        {color}
-      </p>
-    </div>
+    <>
+      <Header title="New event" />
+      {/* TODO: title should come from the redux state, has to be translated in real world app */}
+      <Form fieldsState={formFieldsState} setFieldValue={setFieldValue} />
+    </>
   );
 };
 

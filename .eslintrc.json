@@ -1,6 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react-hooks"],
+  "plugins": ["react-hooks", "import"],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -30,6 +30,7 @@
     "@typescript-eslint/indent": 0,
     "react-hooks/rules-of-hooks": 2,
     "react-hooks/exhaustive-deps": 1,
+    "import/no-unresolved": "error",
     "indent": [2, 2]
   },
   "env": {
@@ -38,7 +39,11 @@
     "node": true
   },
   "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
     "import/resolver": {
+      "typescript": { "directory": "./" },
       "node": {
         "extensions": [".ts", ".tsx"]
       }
