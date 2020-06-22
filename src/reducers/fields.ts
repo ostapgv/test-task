@@ -1,48 +1,25 @@
 import {
-  SUBMIT_FORM,
+  UPDATE_FIELD,
+  UPDATE_INITIAL_FORM_DATA,
   VALIDATE_FIELD,
-  VALIDATE_FORM,
 } from '../constants/actionTypes';
-import InputRow from 'components/fields/InputField/InputField';
-import { createIsValidMaxLength, isNotEmpty } from '../validators';
+import { initialAppState } from '../constants/appState';
 
-enum SECTION_ENUM {
-  ABOUT = 'About',
-  COORDINATOR = 'Coordinator',
-  WHEN = 'When',
-}
-
-const initialState = {
-  title: {
-    component: InputRow,
-    section: SECTION_ENUM.ABOUT,
-    name: 'title',
-    label: 'TITLE',
-    value: '',
-    validators: [isNotEmpty],
-    isRequired: true,
-  },
-  description: {
-    component: InputRow,
-    section: 'About',
-    name: 'description',
-    label: 'DESCRIPTION',
-    value: '',
-    validators: [isNotEmpty, createIsValidMaxLength(140)],
-    maxLength: 140,
-    isRequired: true,
-  },
-};
-
-export default (state = initialState, action) => {
+export default (fields = initialAppState.fields, action) => {
+  let name,
+    value,
+    validationErrors = [];
   switch (action.type) {
+    case UPDATE_FIELD:
+      ({ name, value } = action.payload);
+      return { ...fields, [name]: { ...fields[name], value } };
+    case UPDATE_INITIAL_FORM_DATA:
+      const { coordinator, responsible, duplicatedTitles } = action.payload;
+      return { ...fields, coordinator, responsible, duplicatedTitles };
     case VALIDATE_FIELD:
-      return state;
-    case VALIDATE_FORM:
-      return state;
-    case SUBMIT_FORM:
-      return state;
+      ({ name, validationErrors } = action.payload);
+      return { ...fields, [name]: { ...fields[name], validationErrors } };
     default:
-      return state;
+      return fields;
   }
 };

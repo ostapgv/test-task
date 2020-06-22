@@ -1,5 +1,15 @@
-export const isNotEmpty = (value: string): boolean => value.length > 0;
+const isNotEmpty = (name: string, value: string) =>
+  Promise.resolve(value.length > 0);
 
-export const createIsValidMaxLength = (maxLength: number) => (
-  value: string
-): boolean => value.length <= maxLength;
+const isValidMaxLength = (
+  name: string,
+  value: string,
+  maxLength: number
+): Promise<boolean> => {
+  return Promise.resolve(value.length <= maxLength);
+};
+
+export default {
+  isNotEmpty,
+  isValidMaxLength,
+};

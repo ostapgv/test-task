@@ -1,8 +1,9 @@
 import InputField from 'components/fields/InputField/InputField';
 import TextAreaField from 'components/fields/TextAreaField/TextAreaField';
-import { createIsValidMaxLength, isNotEmpty } from '../validators';
 import { SECTIONS } from './sections';
 import * as React from 'react';
+
+// export type ValidatorsType = ((value: string) => Promise<boolean>)[];
 
 export interface FieldInterface {
   component: React.FC;
@@ -10,14 +11,13 @@ export interface FieldInterface {
   name: string;
   label: string;
   value: string;
-  validators:
-    | ((value: string) => boolean)[]
-    | ((value: string) => Promise<boolean>)[];
+  validators?: string[];
   isRequired?: boolean;
   maxLength?: number;
+  validationErrors?: string[];
 }
 
-type FieldsInterface = Record<string, FieldInterface>;
+export type FieldsInterface = Record<string, FieldInterface>;
 
 export const formFields: FieldsInterface = {
   title: {
@@ -26,7 +26,7 @@ export const formFields: FieldsInterface = {
     name: 'title',
     label: 'TITLE',
     value: '',
-    validators: [isNotEmpty],
+    validators: ['isNotEmpty'],
     isRequired: true,
   },
   description: {
@@ -35,7 +35,7 @@ export const formFields: FieldsInterface = {
     name: 'description',
     label: 'DESCRIPTION',
     value: '',
-    validators: [isNotEmpty, createIsValidMaxLength(140)],
+    validators: ['isNotEmpty', 'isValidMaxLength'],
     isRequired: true,
     maxLength: 140,
   },

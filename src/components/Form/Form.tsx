@@ -1,24 +1,23 @@
 import * as React from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import FormSection from 'components/FormSection/FormSection';
 import AppContent from 'components/AppContent/AppContent';
 import FieldRow from 'components/FieldRow/FieldRow';
 import { SECTIONS } from '../../constants/sections';
-import { FieldInterface } from '../../constants/formFields';
+import { AppStateInterface } from '../../constants/appState';
+import fieldsActions from '../../actions/fieldsActions';
 
-interface FormProps {
-  fieldsState: Record<string, FieldInterface>;
-  setFieldValue: (name: string, value: string) => void;
-}
+const Form: React.FC = () => {
+  const fields = useSelector((state: AppStateInterface) => state.fields);
+  const dispatch = useDispatch();
 
-const Form: React.FC<FormProps> = ({ fieldsState, setFieldValue }) => {
-  console.log(fieldsState);
-
-  const handleSubmit = () => {
-    console.log('submitted');
-  };
+  useEffect(() => {
+    dispatch(fieldsActions.updateInitialState());
+  }, []);
 
   const getFieldsBySection = (section: SECTIONS) =>
-    Object.values(fieldsState).filter((field) => field.section === section);
+    Object.values(fields).filter((field) => field.section === section);
 
   const renderSectionFields = (fields) => {
     return fields.map((field) => {
@@ -30,7 +29,7 @@ const Form: React.FC<FormProps> = ({ fieldsState, setFieldValue }) => {
           label={field.label}
           isRequired={field.isRequired}
         >
-          <field.component {...props} setFieldValue={setFieldValue} />
+          <field.component {...props} />
         </FieldRow>
       );
     });
