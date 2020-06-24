@@ -16,6 +16,7 @@ export const theme = {
     lightPink: '#ffadb2',
     cosmicLatte: '#ecfdf2',
     chinook: '#97d0a2',
+    darkOrange: '#ff8a00',
   },
   space: [
     0,

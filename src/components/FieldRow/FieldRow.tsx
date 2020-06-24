@@ -36,6 +36,7 @@ const StyledFieldRow = styled(FieldRow)`
   @media ${(props) => props.theme.breakpoint.desktop} {
     flex-direction: row;
     align-items: center;
+    min-height: 3.25rem;
   }
   label {
     color: ${(props) => props.theme.color.midnightBlue};

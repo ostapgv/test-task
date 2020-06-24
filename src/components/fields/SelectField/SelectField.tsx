@@ -11,31 +11,39 @@ import { AppStateInterface } from '../../../constants/appState';
 import ValidationError from 'components/ValidationError/ValidationError';
 
 const Container = styleFieldContainer(styled.div``);
-const Input = styleInputLikeComponent(styled.input``);
+const Select = styleInputLikeComponent(styled.select``);
+const Option = styled.option``;
 
-const InputField: React.FC<FieldProps> = ({ name, className }) => {
-  const state = useSelector((state: AppStateInterface) => state);
+const SelectField: React.FC<FieldProps> = ({ name, className }) => {
   const field = useSelector((state: AppStateInterface) => state.fields[name]);
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
     const updatedField = { ...field, value: event.target.value };
     dispatch(fieldsActions.updateField(updatedField));
-    dispatch(fieldsActions.validateField(updatedField, state));
   };
 
   return (
-    <Container className={className}>
-      <Input
-        size={1}
+    <Container>
+      <Select
         id={name}
-        placeholder={field.placeholder}
         defaultValue={field.value}
+        className={className}
         onChange={handleChange}
-      />
+      >
+        <option value="" disabled>
+          {field.placeholder}
+        </option>
+        {field.options &&
+          field.options.map((option) => (
+            <Option key={option.name} value={option.value}>
+              {option.name}
+            </Option>
+          ))}
+      </Select>
       <ValidationError validationErrors={field.validationErrors} />
     </Container>
   );
 };
 
-export default InputField;
+export default SelectField;

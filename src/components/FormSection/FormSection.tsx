@@ -13,7 +13,7 @@ const FormSection: React.FC<FormSectionProps> = ({
 }) => {
   return (
     <section className={className}>
-      <h2>{title}</h2>
+      {title && <h2>{title}</h2>}
       {children}
     </section>
   );

@@ -8,12 +8,22 @@ import {
 } from '../../../utils';
 import fieldsActions from '../../../actions/fieldsActions';
 import { AppStateInterface } from '../../../constants/appState';
-import ValidationError from 'components/ValidationError/ValidationError';
 
-const Container = styleFieldContainer(styled.div``);
-const Input = styleInputLikeComponent(styled.input``);
+const Container = styleFieldContainer(styled.span``);
+const Input = styled(styleInputLikeComponent(styled.input``))`
+  width: 100px;
+`;
+const Span = styled.div`
+  opacity: 0.5;
+  color: ${(props) => props.theme.color.midnightBlue};
+  padding: ${(props) => props.theme.space[2]} 0;
+  @media ${(props) => props.theme.breakpoint.desktop} {
+    padding: 0 ${(props) => props.theme.space[2]};
+    display: inline;
+  }
+`;
 
-const InputField: React.FC<FieldProps> = ({ name, className }) => {
+const NumberField: React.FC<FieldProps> = ({ name, className }) => {
   const state = useSelector((state: AppStateInterface) => state);
   const field = useSelector((state: AppStateInterface) => state.fields[name]);
   const dispatch = useDispatch();
@@ -25,17 +35,19 @@ const InputField: React.FC<FieldProps> = ({ name, className }) => {
   };
 
   return (
-    <Container className={className}>
+    <Container>
       <Input
-        size={1}
+        type="number"
+        min="0"
         id={name}
         placeholder={field.placeholder}
         defaultValue={field.value}
+        className={className}
         onChange={handleChange}
       />
-      <ValidationError validationErrors={field.validationErrors} />
+      {field.description && <Span>{field.description}</Span>}
     </Container>
   );
 };
 
-export default InputField;
+export default NumberField;

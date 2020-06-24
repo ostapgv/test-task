@@ -6,9 +6,12 @@ import {
   FieldProps,
   styleInputLikeComponent,
   styleFieldContainer,
-} from 'components/fields/common';
+} from '../../../utils';
 import fieldsActions from '../../../actions/fieldsActions';
 import { AppStateInterface } from '../../../constants/appState';
+import { FieldInterface } from '../../../constants/formFields';
+import Tooltip from 'components/Tooltip/Tooltip';
+import ValidationError from 'components/ValidationError/ValidationError';
 
 const Container = styleFieldContainer(styled.div``);
 const Box = styled.div`
@@ -21,21 +24,20 @@ const TextArea = styleInputLikeComponent(styled.textarea`
   height: 7rem;
 `);
 
-const getLettersLeft = (value, maxLength) =>
+const getLettersLeft = ({ value, maxLength }: FieldInterface) =>
   maxLength - value.length > 0 ? maxLength - value.length : 0;
 
 const TextAreaField: React.FC<FieldProps> = ({ name, className }) => {
-  const { value, maxLength, validators, validationErrors } = useSelector(
-    (state: AppStateInterface) => state.fields[name]
-  );
-  const [lettersLeft, setLettersLeft] = useState(maxLength);
+  const state = useSelector((state: AppStateInterface) => state);
+  const field = useSelector((state: AppStateInterface) => state.fields[name]);
+  const [lettersLeft, setLettersLeft] = useState(field.maxLength);
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
-    const value = event.target.value;
-    setLettersLeft(getLettersLeft(value, maxLength));
-    dispatch(fieldsActions.updateField(name, value));
-    dispatch(fieldsActions.validateField(name, value, validators));
+    const updatedField = { ...field, value: event.target.value };
+    setLettersLeft(getLettersLeft(updatedField));
+    dispatch(fieldsActions.updateField(updatedField));
+    dispatch(fieldsActions.validateField(updatedField, state));
   };
 
   return (
@@ -43,13 +45,14 @@ const TextAreaField: React.FC<FieldProps> = ({ name, className }) => {
       <TextArea
         className={className}
         id={name}
-        defaultValue={value}
+        placeholder={field.placeholder}
+        defaultValue={field.value}
         // TODO: uncomment the line below and remove checking how many allowed letters left
         // maxLength={field.maxLength}
         onChange={handleChange}
       />
       <Box>symbols left: {lettersLeft}</Box>
-      {validationErrors && validationErrors[0]}
+      <ValidationError validationErrors={field.validationErrors} />
     </Container>
   );
 };

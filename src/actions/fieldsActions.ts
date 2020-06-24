@@ -1,63 +1,64 @@
-import {
-  UPDATE_FIELD,
-  UPDATE_INITIAL_FORM_DATA,
-  UPDATE_INITIAL_FORM_DATA_ERROR,
-  VALIDATE_FIELD,
-} from '../constants/actionTypes';
-import {
-  COORDINATOR_API,
-  RESPONSIBLE_API,
-  DUPLICATED_TITLES_API,
-} from '../constants/api';
+import { UPDATE_FIELD, GET_INITIAL_FORM_DATA } from '../constants/actionTypes';
+import { COORDINATOR_API, RESPONSIBLE_API } from '../constants/api';
 import definedValidators from '../validators';
-import errorMap from '../constants/errorMap';
+import errorMap from '../validators/validationErrorsMap';
+import { FieldInterface } from '../constants/formFields';
+import {
+  mapCategoryOptions,
+  mapAndFilterResponsibleOptions,
+} from './fieldsMapping';
+import { AppStateInterface } from '../constants/appState';
 
-const getCoordinator = fetch(COORDINATOR_API).then((res) => res.json());
-const getResponsible = fetch(RESPONSIBLE_API).then((res) => res.json());
-const getDuplicatedTitles = fetch(DUPLICATED_TITLES_API).then((res) =>
-  res.json()
-);
+const fetchCategories = () => fetch(COORDINATOR_API).then((res) => res.json());
+const fetchResponsible = () => fetch(RESPONSIBLE_API).then((res) => res.json());
 
-const updateInitialFormData = () => (dispatch) => {
-  Promise.all([getCoordinator, getResponsible, getDuplicatedTitles])
-    .then((res) => {
-      const [coordinator, responsible, duplicatedTitles] = res;
-      dispatch({
-        type: UPDATE_INITIAL_FORM_DATA,
-        payload: { coordinator, responsible, duplicatedTitles },
-      });
-    })
-    .catch((error) => {
-      dispatch({ type: UPDATE_INITIAL_FORM_DATA_ERROR, payload: error });
+const getInitialFormData = () => (dispatch) => {
+  Promise.all([fetchCategories(), fetchResponsible()]).then((data) => {
+    const [category, responsible] = data;
+    dispatch({
+      type: GET_INITIAL_FORM_DATA,
+      payload: {
+        category: mapCategoryOptions(category),
+        responsible: mapAndFilterResponsibleOptions(responsible),
+      },
     });
+  });
 };
 
-const updateField = (name: string, value: string) => (dispatch) => {
-  dispatch({ type: UPDATE_FIELD, payload: { name, value } });
+const updateField = (field: FieldInterface) => (dispatch) => {
+  dispatch({ type: UPDATE_FIELD, payload: field });
 };
 
-const validateField = (name: string, value: string, validators: string[]) => (
+const validateField = (field: FieldInterface, state: AppStateInterface) => (
   dispatch
-) => {
+): Promise<boolean> => {
+  const { name, validators } = field;
+  if (!validators || !validators.length) {
+    return Promise.resolve(false);
+  }
+
   const fieldValidators = validators.map((validator) =>
-    // TODO: pass maxNumber properly
-    definedValidators[validator](name, value, 140)
+    definedValidators[validator](field, state)
   );
-  Promise.all(fieldValidators).then((res) => {
+  // Going through field validators and creating validation errors array (string[])
+  return Promise.all(fieldValidators).then((res) => {
     const validationErrors = [];
     validators.forEach((validator, index) => {
       if (!res[index]) {
         validationErrors.push(
-          errorMap.fields[name][validator] || errorMap.fallback[validator]
+          errorMap.fields[name]
+            ? errorMap.fields[name][validator]
+            : errorMap.fallback[validator]
         );
       }
     });
-    dispatch({ type: VALIDATE_FIELD, payload: { name, validationErrors } });
+    dispatch({ type: UPDATE_FIELD, payload: { ...field, validationErrors } });
+    return validationErrors.length < 1;
   });
 };
 
 export default {
-  updateInitialState: updateInitialFormData,
+  getInitialState: getInitialFormData,
   updateField: updateField,
   validateField: validateField,
 };
